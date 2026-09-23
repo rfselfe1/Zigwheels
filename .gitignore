@@ -1,0 +1,42 @@
+# Maven build output
+target/
+
+# TestNG output
+test-output/
+
+# Reports and test evidence
+extent-reports/
+allure-results/
+allure-report/
+playwright-report/
+test-results/
+screenshots/
+logs/
+*.log
+
+# JMeter generated results
+*.jtl
+
+# Node and Playwright dependencies
+node_modules/
+
+# Eclipse-generated files
+.settings/
+.classpath
+.project
+bin/
+
+# Other IDE files
+.vscode/
+.idea/
+*.iml
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Local configuration and secrets
+.env
+config-local.properties
+*.key
+*.pem
