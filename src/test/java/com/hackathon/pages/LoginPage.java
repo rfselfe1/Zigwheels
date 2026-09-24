@@ -3,6 +3,7 @@ package com.hackathon.pages;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.openqa.selenium.By;
@@ -36,19 +37,8 @@ public class LoginPage {
                     + "[self::button or @role='button'][1]"
             );
 
-    private static final By CONSENT_BUTTON =
-            By.cssSelector("button.fc-cta-consent");
-
-    private static final By CONSENT_OVERLAY =
-            By.cssSelector(".fc-dialog-overlay");
-
-    private static final By GOOGLE_ERROR_REGIONS =
-            By.cssSelector(
-                    "[aria-live='assertive'], "
-                    + "[aria-live='polite'], "
-                    + "[role='alert'], "
-                    + "[jsname='B34EJ']"
-            );
+    private static final By GOOGLE_SPECIFIC_ERROR =
+            By.cssSelector("[jsname='B34EJ']");
 
     private static final By KNOWN_GOOGLE_ERRORS =
             By.xpath(
@@ -61,6 +51,12 @@ public class LoginPage {
                     + "or contains(normalize-space(.), "
                     + "'sign you in')]"
             );
+
+    private static final By CONSENT_BUTTON =
+            By.cssSelector("button.fc-cta-consent");
+
+    private static final By CONSENT_OVERLAY =
+            By.cssSelector(".fc-dialog-overlay");
 
     private final WebDriver driver;
     private final WebDriverWait wait;
@@ -78,12 +74,10 @@ public class LoginPage {
 
         acceptConsentIfDisplayed();
 
-        WebElement loginButton = wait.until(
+        wait.until(
                 ExpectedConditions
                         .elementToBeClickable(LOGIN_BUTTON)
-        );
-
-        loginButton.click();
+        ).click();
 
         wait.until(
                 ExpectedConditions
@@ -142,49 +136,29 @@ public class LoginPage {
     }
 
     public String getValidationError() {
-        System.out.println(
-                "Google URL after submission: "
-                        + driver.getCurrentUrl()
-        );
+        return wait.until(currentDriver -> {
+            String message = getAriaDescribedError();
 
-        System.out.println(
-                "Google page title after submission: "
-                        + driver.getTitle()
-        );
+            if (isRecognizedGoogleError(message)) {
+                return message;
+            }
 
-        String validationMessage = wait.until(
-                currentDriver -> {
-                    String message =
-                            getAriaDescribedError();
+            message = getShortestRecognizedText(
+                    GOOGLE_SPECIFIC_ERROR
+            );
 
-                    if (!message.isBlank()) {
-                        return message;
-                    }
+            if (isRecognizedGoogleError(message)) {
+                return message;
+            }
 
-                    message = getShortestVisibleText(
-                            GOOGLE_ERROR_REGIONS
-                    );
+            message = getShortestRecognizedText(
+                    KNOWN_GOOGLE_ERRORS
+            );
 
-                    if (!message.isBlank()) {
-                        return message;
-                    }
-
-                    message = getShortestVisibleText(
-                            KNOWN_GOOGLE_ERRORS
-                    );
-
-                    return message.isBlank()
-                            ? null
-                            : message;
-                }
-        );
-
-        System.out.println(
-                "Google validation message found: "
-                        + validationMessage
-        );
-
-        return validationMessage;
+            return isRecognizedGoogleError(message)
+                    ? message
+                    : null;
+        });
     }
 
     private String getAriaDescribedError() {
@@ -197,32 +171,66 @@ public class LoginPage {
 
         WebElement emailInput = emailInputs.get(0);
 
-        String invalid =
-                emailInput.getAttribute("aria-invalid");
+        if (!"true".equals(
+                emailInput.getAttribute("aria-invalid"))) {
+            return "";
+        }
 
         String describedBy =
                 emailInput.getAttribute("aria-describedby");
 
-        if (!"true".equals(invalid)
-                || describedBy == null
+        if (describedBy == null
                 || describedBy.isBlank()) {
             return "";
         }
 
-        return getShortestVisibleText(
-                By.id(describedBy)
-        );
+        for (String elementId :
+                describedBy.trim().split("\\s+")) {
+
+            String message = getShortestRecognizedText(
+                    By.id(elementId)
+            );
+
+            if (isRecognizedGoogleError(message)) {
+                return message;
+            }
+        }
+
+        return "";
     }
 
-    private String getShortestVisibleText(By locator) {
+    private String getShortestRecognizedText(
+            By locator) {
+
         return driver.findElements(locator)
                 .stream()
                 .filter(WebElement::isDisplayed)
                 .map(WebElement::getText)
                 .map(String::trim)
-                .filter(text -> !text.isBlank())
+                .filter(this::isRecognizedGoogleError)
                 .min(Comparator.comparingInt(String::length))
                 .orElse("");
+    }
+
+    private boolean isRecognizedGoogleError(
+            String message) {
+
+        if (message == null || message.isBlank()) {
+            return false;
+        }
+
+        String normalized =
+                message.toLowerCase(Locale.ROOT);
+
+        return normalized.contains(
+                "find your google account"
+        )
+        || normalized.contains(
+                "sign you in"
+        )
+        || normalized.contains(
+                "browser or app may not be secure"
+        );
     }
 
     private void acceptConsentIfDisplayed() {

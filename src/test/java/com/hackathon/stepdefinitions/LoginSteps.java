@@ -1,5 +1,7 @@
 package com.hackathon.stepdefinitions;
 
+import java.util.Locale;
+
 import org.testng.Assert;
 
 import com.hackathon.driver.DriverManager;
@@ -45,6 +47,26 @@ public class LoginSteps {
         Assert.assertFalse(
                 validationError.isBlank(),
                 "Google validation error should not be empty"
+        );
+
+        String normalizedError =
+                validationError.toLowerCase(Locale.ROOT);
+
+        boolean recognizedGoogleError =
+                normalizedError.contains(
+                        "find your google account"
+                )
+                || normalizedError.contains(
+                        "sign you in"
+                )
+                || normalizedError.contains(
+                        "browser or app may not be secure"
+                );
+
+        Assert.assertTrue(
+                recognizedGoogleError,
+                "Unexpected Google message captured: "
+                        + validationError
         );
     }
 }
