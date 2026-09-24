@@ -12,8 +12,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LoginPage {
+	
+	private static final Logger logger =
+	        LogManager.getLogger(LoginPage.class);
 
     private static final String HOME_URL =
             "https://www.zigwheels.com/";
@@ -234,6 +239,7 @@ public class LoginPage {
     }
 
     private void acceptConsentIfDisplayed() {
+
         WebDriverWait shortWait =
                 new WebDriverWait(
                         driver,
@@ -241,6 +247,7 @@ public class LoginPage {
                 );
 
         try {
+
             shortWait.until(
                     ExpectedConditions
                             .elementToBeClickable(
@@ -255,12 +262,13 @@ public class LoginPage {
                             )
             );
 
-            System.out.println(
+            logger.info(
                     "Consent dialog was accepted"
             );
 
         } catch (TimeoutException exception) {
-            System.out.println(
+
+            logger.debug(
                     "Consent dialog was not displayed"
             );
         }
