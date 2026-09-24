@@ -21,6 +21,7 @@
         <cucumber.version>7.27.2</cucumber.version>
         <log4j.version>2.26.1</log4j.version>
         <extent.adapter.version>1.14.0</extent.adapter.version>
+        <allure.version>2.33.0</allure.version>
     </properties>
 
     <dependencies>
@@ -85,6 +86,14 @@
         <version>${extent.adapter.version}</version>
         <scope>test</scope>
         </dependency>
+        
+        <!-- Allure integration for Cucumber 7 -->
+<dependency>
+    <groupId>io.qameta.allure</groupId>
+    <artifactId>allure-cucumber7-jvm</artifactId>
+    <version>${allure.version}</version>
+    <scope>test</scope>
+</dependency>
 
     </dependencies>
     

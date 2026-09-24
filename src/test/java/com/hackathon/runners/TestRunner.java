@@ -15,7 +15,8 @@ import io.cucumber.testng.CucumberOptions;
                 "pretty",
                 "html:target/cucumber-report.html",
                 "json:target/cucumber-report.json",
-                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:"
+                "com.aventstack.extentreports.cucumber.adapter.ExtentCucumberAdapter:",
+                "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         },
         monochrome = true,
         publish = false
