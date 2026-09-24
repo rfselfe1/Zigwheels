@@ -1,5 +1,7 @@
 package com.hackathon.stepdefinitions;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.testng.Assert;
 
 import com.hackathon.driver.DriverManager;
@@ -10,19 +12,31 @@ import io.cucumber.java.en.Then;
 
 public class HomePageSteps {
 
+    private static final Logger logger =
+            LogManager.getLogger(HomePageSteps.class);
+
     private HomePage homePage;
 
     @Given("I open the ZigWheels website")
     public void openZigWheelsWebsite() {
-        homePage = new HomePage(DriverManager.getDriver());
+
+        logger.info("Opening the ZigWheels home page");
+
+        homePage =
+                new HomePage(DriverManager.getDriver());
+
         homePage.open();
     }
 
     @Then("the page title should not be empty")
     public void verifyPageTitle() {
+
         String title = homePage.getPageTitle();
 
-        System.out.println("Page title: " + title);
+        logger.info(
+                "Page title: {}",
+                title
+        );
 
         Assert.assertFalse(
                 title.isBlank(),
@@ -32,9 +46,13 @@ public class HomePageSteps {
 
     @Then("the current URL should contain {string}")
     public void verifyCurrentUrl(String expectedText) {
+
         String currentUrl = homePage.getCurrentUrl();
 
-        System.out.println("Current URL: " + currentUrl);
+        logger.info(
+                "Current URL: {}",
+                currentUrl
+        );
 
         Assert.assertTrue(
                 currentUrl.contains(expectedText),
