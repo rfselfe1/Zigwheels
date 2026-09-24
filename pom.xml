@@ -20,6 +20,7 @@
         <testng.version>7.11.0</testng.version>
         <cucumber.version>7.27.2</cucumber.version>
         <log4j.version>2.26.1</log4j.version>
+        <extent.adapter.version>1.14.0</extent.adapter.version>
     </properties>
 
     <dependencies>
@@ -77,6 +78,13 @@
             <version>${log4j.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+        <groupId>tech.grasshopper</groupId>
+        <artifactId>extentreports-cucumber7-adapter</artifactId>
+        <version>${extent.adapter.version}</version>
+        <scope>test</scope>
+        </dependency>
 
     </dependencies>
     
@@ -97,3 +105,5 @@
 </build>
 
 </project>
+
+
