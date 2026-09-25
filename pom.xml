@@ -22,6 +22,7 @@
         <log4j.version>2.26.1</log4j.version>
         <extent.adapter.version>1.14.0</extent.adapter.version>
         <allure.version>2.33.0</allure.version>
+        <axe.version>4.13.0</axe.version>
     </properties>
 
     <dependencies>
@@ -92,6 +93,14 @@
     <groupId>io.qameta.allure</groupId>
     <artifactId>allure-cucumber7-jvm</artifactId>
     <version>${allure.version}</version>
+    <scope>test</scope>
+</dependency>
+
+<!-- Automated accessibility checks with axe-core -->
+<dependency>
+    <groupId>com.deque.html.axe-core</groupId>
+    <artifactId>selenium</artifactId>
+    <version>${axe.version}</version>
     <scope>test</scope>
 </dependency>
 

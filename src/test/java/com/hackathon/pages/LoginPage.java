@@ -12,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -141,28 +142,44 @@ public class LoginPage {
     }
 
     public String getValidationError() {
+
         return wait.until(currentDriver -> {
-            String message = getAriaDescribedError();
 
-            if (isRecognizedGoogleError(message)) {
-                return message;
+            try {
+
+                String message =
+                        getAriaDescribedError();
+
+                if (isRecognizedGoogleError(message)) {
+                    return message;
+                }
+
+                message =
+                        getShortestRecognizedText(
+                                GOOGLE_SPECIFIC_ERROR
+                        );
+
+                if (isRecognizedGoogleError(message)) {
+                    return message;
+                }
+
+                message =
+                        getShortestRecognizedText(
+                                KNOWN_GOOGLE_ERRORS
+                        );
+
+                return isRecognizedGoogleError(message)
+                        ? message
+                        : null;
+
+            } catch (StaleElementReferenceException exception) {
+
+                logger.debug(
+                        "Google refreshed the validation element; retrying"
+                );
+
+                return null;
             }
-
-            message = getShortestRecognizedText(
-                    GOOGLE_SPECIFIC_ERROR
-            );
-
-            if (isRecognizedGoogleError(message)) {
-                return message;
-            }
-
-            message = getShortestRecognizedText(
-                    KNOWN_GOOGLE_ERRORS
-            );
-
-            return isRecognizedGoogleError(message)
-                    ? message
-                    : null;
         });
     }
 
