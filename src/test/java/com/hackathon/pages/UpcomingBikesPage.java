@@ -20,7 +20,9 @@ import com.hackathon.models.Bike;
 public class UpcomingBikesPage {
 
     private static final Logger logger =
-            LogManager.getLogger(UpcomingBikesPage.class);
+            LogManager.getLogger(
+                    UpcomingBikesPage.class
+            );
 
     private static final String UPCOMING_BIKES_URL =
             "https://www.zigwheels.com/upcoming-bikes";
@@ -33,6 +35,14 @@ public class UpcomingBikesPage {
     private static final By BIKE_IMAGE =
             By.cssSelector(
                     "img[data-track-label='model-image']"
+            );
+
+    private static final ZoneId INDIA_TIME_ZONE =
+            ZoneId.of("Asia/Kolkata");
+
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern(
+                    "dd MMM yyyy"
             );
 
     private final WebDriver driver;
@@ -69,13 +79,10 @@ public class UpcomingBikesPage {
                                 )
                 );
 
-        logger.info(
-                "Upcoming-bike cards found: {}",
-                cards.size()
-        );
-
         List<Bike> bikes =
                 new ArrayList<>();
+
+        int skippedCards = 0;
 
         for (WebElement card : cards) {
 
@@ -97,13 +104,12 @@ public class UpcomingBikesPage {
                         );
 
                 if (name.isBlank()
+                        || priceText == null
                         || priceText.isBlank()
+                        || launchTimestamp == null
                         || launchTimestamp.isBlank()) {
 
-                    logger.warn(
-                            "Skipping a bike card because required data is blank"
-                    );
-
+                    skippedCards++;
                     continue;
                 }
 
@@ -127,16 +133,23 @@ public class UpcomingBikesPage {
 
             } catch (RuntimeException exception) {
 
-                logger.warn(
-                        "Skipped a bike card because its data was incomplete: {}",
-                        exception.getMessage()
+                skippedCards++;
+
+                logger.debug(
+                        "Skipped a bike card because its data was incomplete",
+                        exception
                 );
             }
         }
 
         logger.info(
-                "Successfully extracted {} upcoming bikes",
-                bikes.size()
+                "Upcoming-bike extraction completed"
+                        + " | cardsFound={}"
+                        + " | bikesExtracted={}"
+                        + " | cardsSkipped={}",
+                cards.size(),
+                bikes.size(),
+                skippedCards
         );
 
         return bikes;
@@ -151,19 +164,8 @@ public class UpcomingBikesPage {
         return Instant.ofEpochSecond(
                         epochSeconds
                 )
-                .atZone(
-                        ZoneId.of(
-                                "Asia/Kolkata"
-                        )
-                )
+                .atZone(INDIA_TIME_ZONE)
                 .toLocalDate()
-                .format(
-                        DateTimeFormatter.ofPattern(
-                                "dd MMM yyyy"
-                        )
-                );
+                .format(DATE_FORMATTER);
     }
 }
-
-
-

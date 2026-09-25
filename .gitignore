@@ -9,6 +9,7 @@ extent-reports/
 allure-results/
 allure-report/
 playwright-report/
+/cucumber-report.json
 test-results/
 screenshots/
 logs/
