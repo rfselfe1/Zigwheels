@@ -1,0 +1,16 @@
+.git
+.github
+.idea
+.settings
+.classpath
+.project
+
+target
+logs
+allure-report
+allure-results
+test-output
+
+*.log
+*.iml
+.DS_Store
