@@ -1,0 +1,45 @@
+services:
+  selenium-chrome:
+    image: selenium/standalone-chrome:4.35.0
+    container_name: zigwheels-selenium-chrome
+
+    shm_size: 2gb
+
+    environment:
+      SE_NODE_MAX_SESSIONS: 2
+      SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail http://localhost:4444/status || exit 1"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: zigwheels-tests
+
+    depends_on:
+      selenium-chrome:
+        condition: service_healthy
+
+    volumes:
+      - ./target:/workspace/target
+      - ./logs:/workspace/logs
+
+    command:
+      [
+        "mvn",
+        "-B",
+        "test",
+        "-Dexecution=remote",
+        "-Dselenium.url=http://selenium-chrome:4444/wd/hub"
+      ]
+
